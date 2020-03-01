@@ -1,30 +1,22 @@
-﻿// labyrinth(2).cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+﻿// labyrinth.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
-
-
 #include "pch.h"
-//#include "commons.h"
-#include "test.h"
-#include "graph.h"
+#include "commons.h"
+#include "myGraph.h"
 
 #include <iostream>
 #include <graphics.h>
 #include<malloc.h>
-#include <ctime>
 #include<queue>
 
 #include <conio.h>//在控制台输入输出文件
 
 using namespace std;
 
-
 void GameMenu();
 void MainMenu();
 void init();
-
-
-
 
 int flag1 = 0;
 
@@ -47,8 +39,8 @@ vector<Node> findPathByBFS(int sx, int sy, int ex, int ey) {
 	queue<Node> qu;
 	vector<Node> vt;
 	qu.push(Node(ex, ey, -1, 0));
-	
-	
+
+
 	int cnt = 1;
 	while (!qu.empty()) {
 		Node node = qu.front();		qu.pop();
@@ -57,7 +49,7 @@ vector<Node> findPathByBFS(int sx, int sy, int ex, int ey) {
 			//cout << "yes" << endl;
 			return vt;
 		}
-		
+
 		for (int i = 0; i < 4; i++) {
 			int tx = node.x + dx[i];
 			int ty = node.y + dy[i];
@@ -72,6 +64,9 @@ vector<Node> findPathByBFS(int sx, int sy, int ex, int ey) {
 }
 vector<Node> getBFSVector(vector<Node> vt) {
 	vector<Node> res;
+	if (vt.size() == 0) {
+		return res;
+	}
 	Node tp = vt[vt.size() - 1];
 	while (tp.pre != 0) {
 		Node index = vt[tp.pre];
@@ -82,8 +77,11 @@ vector<Node> getBFSVector(vector<Node> vt) {
 	return res;
 }
 
-void fillColorByVector(vector<Node> vt)
+bool fillColorByVector(vector<Node> vt)
 {
+	sx = sy = ex = ey = -1;
+
+	
 	if (vt.size() != 0) {
 
 		for (auto box : vt)
@@ -95,10 +93,15 @@ void fillColorByVector(vector<Node> vt)
 			//暂停0.1s钟以便于观察路径过程
 			Sleep(1000);
 		}
+		return true;
 	}
+	else {
+		return false;
+	}
+	
 }
 void dfs(vector<Node> &vt, int x, int y, int ex, int ey, bool &op) {
-	if (op) { return;}
+	if (op) { return; }
 
 	for (int i = 0; i < 4; i++) {
 		int tx = x + dx[i];
@@ -131,7 +134,7 @@ void GameMenu()
 	initgraph(1300, 600);
 	setbkcolor(WHITE);
 	cleardevice();
-	
+
 	PrintLine();
 	//FillColor();
 	settextcolor(GREEN);//字体颜色
@@ -241,6 +244,7 @@ void GameMenu()
 						}
 						sy += 1;
 						sx += 1;
+						mg[sx][sy] = 0;
 						break;
 					}
 				}
@@ -263,6 +267,7 @@ void GameMenu()
 						}
 						ey += 1;
 						ex += 1;
+						mg[ex][ey] = 0;
 						break;
 					}
 				}
@@ -274,15 +279,23 @@ void GameMenu()
 				FillColor();
 			}
 			else if (Mou.x >= 1050 && Mou.x <= 1250 && Mou.y <= 300 && Mou.y >= 250) {
+				if (sx == -1 || sy == -1 || ex == -1 || ey == -1) {
+					msg(_T("请设置起点或终点"));
+					continue;
+				}
+				bool judgeWork = false;
 				if (flag1 == 1) {
 					vector<Node> vt = findPathByDFS(sx, sy, ex, ey);
-					fillColorByVector(vt);
+					judgeWork = fillColorByVector(vt);
 
 				}
 				else if (flag1 == 2) {
 					vector<Node> vt = findPathByBFS(sx, sy, ex, ey);
 					vt = getBFSVector(vt);
-					fillColorByVector(vt);
+					judgeWork = fillColorByVector(vt);
+				}
+				if (!judgeWork) {
+					msg(_T("该迷宫无解"));
 				}
 			}
 			else if (Mou.x >= 1050 && Mou.x <= 1250 && Mou.y >= 300 && Mou.y <= 350) {
@@ -312,12 +325,12 @@ void MainMenu()
 		switch (Mou.uMsg) {
 		case WM_MOUSEMOVE:
 			EndBatchDraw();
-			if ((Mou.y >= 300 && Mou.y <= 400) && (Mou.x <= 750 && Mou.x >= 550)) {	
+			if ((Mou.y >= 300 && Mou.y <= 400) && (Mou.x <= 750 && Mou.x >= 550)) {
 				tp[0] = _T("DFS");
 				tp[1] = _T("BFS");
 				tp[2] = _T("EXIT");
 				int point[][4] = { {550,300,750,400},{550,400,750,500},{550,750,500,600} };
-				paintMainMenu(YELLOW,GREEN,tp,point);
+				paintMainMenu(YELLOW, GREEN, tp, point);
 			}
 			else if (Mou.y >= 400 && Mou.y <= 500 && Mou.x <= 750 && Mou.x >= 550) {
 				tp[0] = _T("BFS");
@@ -369,3 +382,15 @@ int main()
 	return 0;
 }
 
+
+
+// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
+// 调试程序: F5 或调试 >“开始调试”菜单
+
+// 入门提示: 
+//   1. 使用解决方案资源管理器窗口添加/管理文件
+//   2. 使用团队资源管理器窗口连接到源代码管理
+//   3. 使用输出窗口查看生成输出和其他消息
+//   4. 使用错误列表窗口查看错误
+//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
+//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件

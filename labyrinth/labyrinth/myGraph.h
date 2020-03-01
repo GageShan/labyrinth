@@ -71,9 +71,11 @@ void PrintLine()
 	for (int i = 0; i <= 1000; i += 50)  line(i, 0, i, 1000);
 	for (int i = 0; i <= 600; i += 50)  line(0, i, 1000, i);
 }
-//填充颜色
-void FillColor()
+
+//填充颜色，随机迷宫路径
+void FillColor()     
 {
+	srand(time(NULL)); //初始化随机数种子
 	setfillcolor(RED);
 	//填充颜色，以分别可走路径和不可走路径
 	int flag = 1;
@@ -110,4 +112,19 @@ void setMenuText() {
 	//f.lfQuality = ANTIALIASED_QUALITY;    // 设置输出效果为抗锯齿  
 	settextstyle(&f);                     // 设置字体样式
 	setWindowsName(_T("by gageshan"));		//设置窗口句柄
+}
+
+void msg(LPCTSTR message) {
+	settextcolor(GREEN);
+	//rectangle(1050, 450, 1250, 500);
+	LOGFONT f;
+	gettextstyle(&f);                     // 获取当前字体设置
+	f.lfHeight = 20;                      // 设置字体高度为 48
+	_tcscpy_s(f.lfFaceName, _T("宋体"));    // 设置字体为“宋体”
+	//f.lfQuality = ANTIALIASED_QUALITY;    // 设置输出效果为抗锯齿  
+	settextstyle(&f);                     // 设置字体样式
+	RECT r = { 1050, 450, 1250, 500 };
+	drawtext(message, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	f.lfHeight = 48;                      // 设置字体高度为 48
+	settextstyle(&f);                     // 设置字体样式
 }
